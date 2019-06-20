@@ -13,7 +13,11 @@ import java.util.List;
 class MethodProfile {
     private final Method method;
     private final Require require;
-    @Singular private final List<ParameterProfile> parameterProfiles;
-    @Singular private final List<Class<?>> parameterTypes;
-    @Singular private final List<Annotation> annotations;
+
+    @Singular
+    private final List<ParameterProfile> parameterProfiles;
+    @Singular
+    private final List<Class<?>> parameterTypes;
+    @Singular
+    private final List<Annotation> annotations;
 }

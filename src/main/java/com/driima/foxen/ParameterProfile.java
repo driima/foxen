@@ -13,6 +13,7 @@ import java.util.List;
 class ParameterProfile {
     private final Parameter parameter;
     private final Class<?> type;
-    @Singular private final List<Annotation> annotations;
+    @Singular
+    private final List<Annotation> annotations;
     private final boolean optional;
 }

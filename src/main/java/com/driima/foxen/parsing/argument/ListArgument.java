@@ -1,16 +1,15 @@
 package com.driima.foxen.parsing.argument;
 
 import com.driima.foxen.parsing.ParsableString;
+import com.google.common.collect.Lists;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ListArgument implements ParsableString<List> {
 
     @Override
     public List<String> parse(String input) {
-        return new ArrayList<>(Arrays.asList(input.replaceAll("^[,\\s]+", "").split("[,\\s]+")));
+        return Lists.newArrayList(input.replaceAll("^[,\\s]+", "").split("[,\\s]+"));
     }
 
     @Override

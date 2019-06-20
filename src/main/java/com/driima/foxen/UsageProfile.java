@@ -12,8 +12,10 @@ class UsageProfile {
 
     private static final Random USAGE_RANDOM = new Random();
 
-    @Singular private final List<String> commandAliases;
-    @Singular private final List<UsageDescriptor> usageDescriptors;
+    @Singular
+    private final List<String> commandAliases;
+    @Singular
+    private final List<UsageDescriptor> usageDescriptors;
 
     public String getUsage() {
         return getUsage(UsageFormat.STANDARD_FORMAT);

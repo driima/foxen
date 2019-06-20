@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Scanner;
 
-public class CommandTest {
+public class FoxenTest {
 
     private static List<User> users = Lists.newArrayList();
 

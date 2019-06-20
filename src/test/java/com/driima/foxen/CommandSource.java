@@ -7,9 +7,9 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 @RequiredArgsConstructor
-public class CommandSource<T> {
+public class CommandSource<T extends CommandSender> {
 
-    public static final CommandSource<CommandSender> SYSTEM = new CommandSource<>(new CommandSender("SYSTEM"));
+    public static final CommandSource<ConsoleSender> SYSTEM = new CommandSource<>(ConsoleSender.SYSTEM);
 
     private String command;
     private final T source;

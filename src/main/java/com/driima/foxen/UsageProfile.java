@@ -30,8 +30,8 @@ class UsageProfile {
         String[] optionalArgsAffixes = usageFormat.getOptionalArgsAffixes();
 
         for (UsageDescriptor usageDescriptor : usageDescriptors) {
-            String[] values = usageDescriptor.usage.value();
-            boolean showAffixes = usageDescriptor.usage.showAffixes();
+            String[] values = usageDescriptor.value;
+            boolean showAffixes = usageDescriptor.showAffixes;
 
             StringBuilder commandUsageBuilder = new StringBuilder();
 
@@ -60,7 +60,9 @@ class UsageProfile {
 
     @Builder
     static class UsageDescriptor {
-        private final Usage usage;
+        private final String[] value;
+        @Builder.Default
+        private final boolean showAffixes = true;
         private final boolean optional;
     }
 }

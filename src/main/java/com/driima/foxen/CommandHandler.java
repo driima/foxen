@@ -10,10 +10,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class CommandHandler<T> {
+
+    static final Supplier<?> defaultOptionalSupplier = () -> null;
 
     private static final Pattern STRING_SPLIT = Pattern.compile("[^\\s\"'\\[\\]]+|\"([^\"]*)\"|'([^']*)'|\\[([^\\[\\]]*)]");
 
@@ -74,19 +77,43 @@ public abstract class CommandHandler<T> {
                 parameterProfileBuilder.type(parameter.getType());
                 parameterProfileBuilder.annotations(Arrays.asList(parameter.getAnnotations()));
 
-                boolean isOptional = parameter.isAnnotationPresent(com.driima.foxen.Optional.class);
+                boolean isOptional = parameter.isAnnotationPresent(Optional.class);
 
-                if (isOptional) {
-                    parameterProfileBuilder.optional(true);
-                }
+                UsageProfile.UsageDescriptor.UsageDescriptorBuilder usageDescriptorBuilder =
+                        UsageProfile.UsageDescriptor.builder().optional(isOptional);
+
+                parameterProfileBuilder.optional(isOptional);
 
                 if (parameter.isAnnotationPresent(Usage.class)) {
-                    usageProfileBuilder.usageDescriptor(
-                            UsageProfile.UsageDescriptor.builder()
-                                    .usage(parameter.getAnnotation(Usage.class))
-                                    .optional(isOptional).build()
-                    );
+                    Usage usageAnnotation = parameter.getAnnotation(Usage.class);
+                    usageDescriptorBuilder
+                            .value(usageAnnotation.value())
+                            .showAffixes(usageAnnotation.showAffixes());
+                } else {
+                    String typeValue = parameter.getType().getSimpleName();
+
+                    if (isOptional) {
+                        Optional optionalAnnotation = parameter.getAnnotation(Optional.class);
+
+                        if (optionalAnnotation.showDefault()) {
+                            ParsableString<?> parsable = Arguments.getRegisteredParsable(parameter.getType());
+
+                            if (parsable != null) {
+                                Object optionalDefault = parsable.getOptionalDefault();
+
+                                if (optionalDefault != null) {
+                                    typeValue += " (" + optionalDefault + ")";
+                                }
+                            }
+                        }
+                    }
+
+                    usageDescriptorBuilder.value(new String[]{typeValue});
                 }
+
+                usageProfileBuilder.usageDescriptor(
+                        usageDescriptorBuilder.build()
+                );
 
                 methodProfileBuilder.parameterProfile(parameterProfileBuilder.build());
                 methodProfileBuilder.parameterType(parameter.getType());

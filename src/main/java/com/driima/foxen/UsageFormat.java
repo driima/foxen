@@ -1,18 +1,29 @@
 package com.driima.foxen;
 
+import com.google.common.base.CaseFormat;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.function.Function;
 
 @Builder
 @Getter
 public final class UsageFormat {
-    public static final UsageFormat STANDARD_FORMAT = builder()
+    public static final UsageFormat STANDARD = builder()
             .commandPrefix("/")
             .optionalArgsAffixes("[]")
             .requiredArgsAffixes("<>")
             .build();
 
+    public static final UsageFormat STANDARD_CAMEL_TO_SPACED = builder()
+            .commandPrefix("/")
+            .commandTransformer(input -> CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, input).replaceAll("_", " ").toLowerCase())
+            .optionalArgsAffixes("[]")
+            .requiredArgsAffixes("<>")
+            .build();
+
     private final String commandPrefix;
+    private final Function<String, String> commandTransformer;
     private final String[] requiredArgsAffixes;
     private final String[] optionalArgsAffixes;
 

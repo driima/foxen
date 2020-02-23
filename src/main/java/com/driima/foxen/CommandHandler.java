@@ -8,6 +8,8 @@ import com.google.common.collect.ImmutableMap;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -26,7 +28,7 @@ public abstract class CommandHandler<T> {
     private UsageFormat usageFormat;
 
     public CommandHandler() {
-        this(UsageFormat.STANDARD_FORMAT);
+        this(UsageFormat.STANDARD);
     }
 
     public CommandHandler(UsageFormat usageFormat) {
@@ -49,12 +51,12 @@ public abstract class CommandHandler<T> {
 
             List<String> aliases = new ArrayList<>();
 
+            aliases.add(usageFormat.getCommandTransformer() == null ? method.getName().toLowerCase() : usageFormat.getCommandTransformer().apply(method.getName()));
+
             if (annotation.value().length > 0) {
                 for (String alias : annotation.value()) {
                     aliases.add(alias.toLowerCase());
                 }
-            } else {
-                aliases.add(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, method.getName()).replaceAll("_", " "));
             }
 
             CommandProfile.CommandProfileBuilder commandProfileBuilder = CommandProfile.builder();
@@ -76,6 +78,14 @@ public abstract class CommandHandler<T> {
                 ParameterProfile.ParameterProfileBuilder parameterProfileBuilder = ParameterProfile.builder();
                 parameterProfileBuilder.type(parameter.getType());
                 parameterProfileBuilder.annotations(Arrays.asList(parameter.getAnnotations()));
+
+                if (parameter.getParameterizedType() instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) parameter.getParameterizedType();
+
+                    for (Type type : parameterizedType.getActualTypeArguments()) {
+                        parameterProfileBuilder.parameterGenericType((Class<?>) type);
+                    }
+                }
 
                 boolean isOptional = parameter.isAnnotationPresent(Optional.class);
 
@@ -143,11 +153,15 @@ public abstract class CommandHandler<T> {
     }
 
     private java.util.Optional<CommandDescriptor> getCommandDescriptor(String context) {
-        String[] splitMessage = getStringParts(context);
-        String commandString = context;
+        String trimmedContext = context.trim();
 
+        String[] splitMessage = getStringParts(trimmedContext);
+        String commandString = trimmedContext;
+
+        // Find the command for the entire context
         CommandProfile commandProfile = getCommandProfiles().get(commandString.toLowerCase());
 
+        // If a command for the entire context does not exist, remove the last argument until a match is found
         if (commandProfile == null) {
             int i = splitMessage.length;
             String joinedCommandString = commandString;
@@ -157,13 +171,14 @@ public abstract class CommandHandler<T> {
                 commandProfile = getCommandProfiles().get(joinedCommandString.toLowerCase());
             }
 
+            // A command was found, so correct the splitMessage to reflect the arguments
             if (commandProfile != null) {
                 commandString = joinedCommandString;
                 splitMessage = Arrays.copyOfRange(splitMessage, i, splitMessage.length);
             }
         }
 
-        if (commandString.equalsIgnoreCase(context)) {
+        if (commandString.equalsIgnoreCase(trimmedContext)) {
             splitMessage = new String[0];
         }
 
@@ -284,7 +299,7 @@ public abstract class CommandHandler<T> {
 
         String[] fixedArgs = args;
 
-        if (args.length > parsableParameterLength && parsableParameterLength > 0 && (parameterTypes.get(parameterTypes.size() - 1) == String.class || Iterable.class.isAssignableFrom(parameterTypes.get(parameterTypes.size() - 1)))) {
+        if (args.length > parsableParameterLength && parsableParameterLength > 0 && (parameterTypes.get(parameterTypes.size() - 1) == String.class || Iterable.class.isAssignableFrom(parameterTypes.get(parameterTypes.size() - 1)) || Map.class.isAssignableFrom(parameterTypes.get(parameterTypes.size() - 1)))) {
             fixedArgs = Arrays.copyOfRange(args, 0, parsableParameterLength);
             String[] lastElements = Arrays.copyOfRange(args, parsableParameterLength - 1, args.length);
             fixedArgs[parsableParameterLength - 1] = String.join(" ", lastElements);
@@ -347,7 +362,7 @@ public abstract class CommandHandler<T> {
 
                 if (parsable != null) {
                     try {
-                        Object argument = parsable.parse(parsableArgument);
+                        Object argument = parsable.parse(parsableArgument, parameterProfile);
 
                         if (argument != null) {
                             result.setParameter(i, argument);

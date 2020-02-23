@@ -1,6 +1,10 @@
 package com.driima.foxen.executors;
 
 import com.driima.foxen.*;
+import com.google.common.collect.Lists;
+
+import java.util.List;
+import java.util.Map;
 
 public class BasicCommands implements CommandExecutor {
 
@@ -18,11 +22,16 @@ public class BasicCommands implements CommandExecutor {
      * TODO: Identify and warn when an @Optional preceeds a non-@Optional, which would render it useless.
      */
     @Command
-    public void add(int firstNumber, @Optional int secondNumber) {
-        System.out.println(firstNumber + secondNumber);
+    public void add(List<Integer> numbers) {
+        System.out.println(numbers.stream().mapToInt(Integer::intValue).sum());
     }
 
-    @Command("toggleTimeLog")
+    @Command
+    public void map(Map<String, Integer> stringToInt) {
+        add(Lists.newArrayList(stringToInt.values()));
+    }
+
+    @Command("ttl")
     public void toggleTimeLog(BasicCommandHandler basicCommandHandler) {
         basicCommandHandler.setLogExecutionTime(!basicCommandHandler.isLogExecutionTime());
 

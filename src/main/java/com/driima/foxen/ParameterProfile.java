@@ -10,10 +10,12 @@ import java.util.List;
 
 @Getter
 @Builder
-class ParameterProfile {
+public class ParameterProfile {
     private final Parameter parameter;
     private final Class<?> type;
     @Singular
     private final List<Annotation> annotations;
+    @Singular
+    private final List<Class<?>> parameterGenericTypes;
     private final boolean optional;
 }

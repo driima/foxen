@@ -18,7 +18,7 @@ class UsageProfile {
     private final List<UsageDescriptor> usageDescriptors;
 
     public String getUsage() {
-        return getUsage(UsageFormat.STANDARD_FORMAT);
+        return getUsage(UsageFormat.STANDARD);
     }
 
     public String getUsage(UsageFormat usageFormat) {

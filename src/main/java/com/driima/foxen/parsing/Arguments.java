@@ -30,6 +30,7 @@ public final class Arguments {
         registerParsable(String.class, new StringArgument());
         registerParsable(List.class, new ListArgument());
         registerParsable(Set.class, new SetArgument());
+        registerParsable(Map.class, new MapArgument());
     }
 
     public static <T> void registerParsable(Class<T> type, ParsableString<? super T> parsable) {

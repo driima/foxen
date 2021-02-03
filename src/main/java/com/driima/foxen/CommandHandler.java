@@ -2,17 +2,19 @@ package com.driima.foxen;
 
 import com.driima.foxen.exception.ArgumentParseException;
 import com.driima.foxen.parsing.*;
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class CommandHandler<T> {
 
@@ -54,7 +56,7 @@ public abstract class CommandHandler<T> {
                     aliases.add(alias.toLowerCase());
                 }
             } else {
-                aliases.add(CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, method.getName()).replaceAll("_", " "));
+                aliases.add(method.getName().toLowerCase());
             }
 
             CommandProfile.CommandProfileBuilder commandProfileBuilder = CommandProfile.builder();
@@ -73,7 +75,8 @@ public abstract class CommandHandler<T> {
             usageProfileBuilder.commandAliases(aliases);
 
             for (Parameter parameter : method.getParameters()) {
-                ParameterProfile.ParameterProfileBuilder parameterProfileBuilder = ParameterProfile.builder();
+                ParameterProfile.ParameterProfileBuilder parameterProfileBuilder = ParameterProfile.builder()
+                        .parameter(parameter);
                 parameterProfileBuilder.type(parameter.getType());
                 parameterProfileBuilder.annotations(Arrays.asList(parameter.getAnnotations()));
 
@@ -106,6 +109,12 @@ public abstract class CommandHandler<T> {
                                 }
                             }
                         }
+                    }
+
+                    if (parameter.getType() == List.class || parameter.getType() == Set.class) {
+                        Class<?> typeArgumentClass = (Class<?>) ((ParameterizedType) parameter.getParameterizedType()).getActualTypeArguments()[0];
+
+                        typeValue += "<" + typeArgumentClass.getSimpleName() + ">";
                     }
 
                     usageDescriptorBuilder.value(new String[]{typeValue});
@@ -350,7 +359,22 @@ public abstract class CommandHandler<T> {
                         Object argument = parsable.parse(parsableArgument);
 
                         if (argument != null) {
-                            result.setParameter(i, argument);
+                            if (argument instanceof List || argument instanceof Set) {
+                                Collection<String> collection = ((Collection<String>) argument);
+
+                                Class<?> actualTypeArgument = (Class<?>) ((ParameterizedType) parameterProfile
+                                        .getParameter()
+                                        .getParameterizedType())
+                                        .getActualTypeArguments()[0];
+
+                                ParsableString<?> itemParsable = Arguments.getRegisteredParsable(actualTypeArgument);
+
+                                Stream<?> stream = collection.stream().map(itemParsable::parse);
+
+                                result.setParameter(i, argument instanceof List ? stream.collect(Collectors.toList()) : stream.collect(Collectors.toSet()));
+                            } else {
+                                result.setParameter(i, argument);
+                            }
                         } else if (!optional) {
                             result.addException("Argument " + parsableIndex,
                                     new ArgumentParseException(CommandError.PARSE_FAILED.toString(
@@ -392,6 +416,7 @@ public abstract class CommandHandler<T> {
                                 ))
                         );
                     } catch (Exception e) {
+                        e.printStackTrace();
                         result.setParameter(i, null);
 
                         result.addException("Argument " + parsableIndex,

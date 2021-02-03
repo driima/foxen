@@ -2,7 +2,6 @@ package com.driima.foxen;
 
 import com.driima.foxen.executors.BasicCommands;
 import com.driima.foxen.parsing.Arguments;
-import com.driima.foxen.parsing.ParsableString;
 import com.google.common.collect.Lists;
 
 import java.util.List;
@@ -14,7 +13,21 @@ public class FoxenTest {
         new FoxenTest();
     }
 
+    private List<User> users;
+
     private FoxenTest() {
+
+        users = Lists.newArrayList();
+        users.add(new User("A"));
+        users.add(new User("time"));
+
+        Arguments.registerParsable(User.class, input ->
+                users.stream()
+                     .filter(user -> user.getName().equalsIgnoreCase(input))
+                     .findFirst()
+                     .orElse(null)
+        );
+
         BasicCommandHandler basicCommandHandler = new BasicCommandHandler();
         basicCommandHandler.registerCommandExecutor(new BasicCommands());
 

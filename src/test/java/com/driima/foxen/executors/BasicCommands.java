@@ -2,6 +2,8 @@ package com.driima.foxen.executors;
 
 import com.driima.foxen.*;
 
+import java.util.List;
+
 public class BasicCommands implements CommandExecutor {
 
     /**
@@ -13,13 +15,23 @@ public class BasicCommands implements CommandExecutor {
     }
 
     /**
-     * A basic implementation of a command that will output the sum of two specified numbers.
+     * A basic implementation of a command that will output the sum of a list of specified numbers.
      * TODO: varargs
      * TODO: Identify and warn when an @Optional preceeds a non-@Optional, which would render it useless.
      */
     @Command
-    public void add(int firstNumber, @Optional int secondNumber) {
-        System.out.println(firstNumber + secondNumber);
+    public void add(List<Integer> numbers) {
+        System.out.println(numbers.stream().mapToInt(Integer::intValue).sum());
+    }
+
+    @Command
+    public void getUser(User user) {
+        System.out.println(user.getName());
+    }
+
+    @Command
+    public void getUserTime(User user) {
+        System.out.println("Time: " + user.getName());
     }
 
     @Command("toggleTimeLog")

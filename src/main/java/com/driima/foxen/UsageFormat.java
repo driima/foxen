@@ -9,7 +9,7 @@ public final class UsageFormat {
     public static final UsageFormat STANDARD_FORMAT = builder()
             .commandPrefix("/")
             .optionalArgsAffixes("[]")
-            .requiredArgsAffixes("<>")
+            .requiredArgsAffixes("{}")
             .build();
 
     private final String commandPrefix;

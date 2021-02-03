@@ -9,27 +9,30 @@ public final class Arguments {
     private static final Map<Class<?>, Class<? extends ParsableString<?>>> registeredParsableTypes = new HashMap<>();
     private static final Map<Class<? extends ParsableString<?>>, ParsableString<?>> cachedParsableInstances = new HashMap<>();
 
+    public static final BooleanArgument BOOLEAN = new BooleanArgument();
+    public static final ByteArgument BYTE = new ByteArgument();
+    public static final DoubleArgument DOUBLE = new DoubleArgument();
+    public static final FloatArgument FLOAT = new FloatArgument();
+    public static final IntegerArgument INTEGER = new IntegerArgument();
+    public static final StringArgument STRING = new StringArgument();
+    public static final ListArgument LIST = new ListArgument();
+    public static final SetArgument SET = new SetArgument();
+
     static {
-        BooleanArgument booleanArgument = new BooleanArgument();
-        ByteArgument byteArgument = new ByteArgument();
-        DoubleArgument doubleArgument = new DoubleArgument();
-        FloatArgument floatArgument = new FloatArgument();
-        IntegerArgument integerArgument = new IntegerArgument();
+        registerParsable(Boolean.class, BOOLEAN);
+        registerParsable(boolean.class, BOOLEAN);
+        registerParsable(Byte.class, BYTE);
+        registerParsable(byte.class, BYTE);
+        registerParsable(Double.class, DOUBLE);
+        registerParsable(double.class, DOUBLE);
+        registerParsable(Float.class, FLOAT);
+        registerParsable(float.class, FLOAT);
+        registerParsable(Integer.class, INTEGER);
+        registerParsable(int.class, INTEGER);
 
-        registerParsable(Boolean.class, booleanArgument);
-        registerParsable(boolean.class, booleanArgument);
-        registerParsable(Byte.class, byteArgument);
-        registerParsable(byte.class, byteArgument);
-        registerParsable(Double.class, doubleArgument);
-        registerParsable(double.class, doubleArgument);
-        registerParsable(Float.class, floatArgument);
-        registerParsable(float.class, floatArgument);
-        registerParsable(Integer.class, integerArgument);
-        registerParsable(int.class, integerArgument);
-
-        registerParsable(String.class, new StringArgument());
-        registerParsable(List.class, new ListArgument());
-        registerParsable(Set.class, new SetArgument());
+        registerParsable(String.class, STRING);
+        registerParsable(List.class, LIST);
+        registerParsable(Set.class, SET);
     }
 
     public static <T> void registerParsable(Class<T> type, ParsableString<? super T> parsable) {

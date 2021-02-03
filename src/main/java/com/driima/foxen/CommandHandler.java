@@ -312,6 +312,8 @@ public abstract class CommandHandler<T> {
             ParameterProfile parameterProfile = commandProfile.getMethodProfile().getParameterProfiles().get(i);
             Class<?> type = parameterProfile.getType();
 
+            System.out.println(type);
+
             if (type == String[].class) {
                 result.setParameter(i, args);
             } else if (suppliableArguments != null && suppliableArguments.has(type)) {

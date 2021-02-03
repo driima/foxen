@@ -83,53 +83,51 @@ public abstract class CommandHandler<T> {
                 parameterProfileBuilder.annotations(Arrays.asList(parameter.getAnnotations()));
 
                 // It's supplied by the implementation, so don't show it in the usage profile
-                if (suppliableArguments != null && suppliableArguments.has(parameter.getType())) {
-                    continue;
-                }
+                if (suppliableArguments == null || !suppliableArguments.has(parameter.getType())) {
+                    boolean isOptional = parameter.isAnnotationPresent(Optional.class);
 
-                boolean isOptional = parameter.isAnnotationPresent(Optional.class);
+                    UsageProfile.UsageDescriptor.UsageDescriptorBuilder usageDescriptorBuilder =
+                            UsageProfile.UsageDescriptor.builder().optional(isOptional);
 
-                UsageProfile.UsageDescriptor.UsageDescriptorBuilder usageDescriptorBuilder =
-                        UsageProfile.UsageDescriptor.builder().optional(isOptional);
+                    parameterProfileBuilder.optional(isOptional);
 
-                parameterProfileBuilder.optional(isOptional);
+                    if (parameter.isAnnotationPresent(Usage.class)) {
+                        Usage usageAnnotation = parameter.getAnnotation(Usage.class);
+                        usageDescriptorBuilder
+                                .value(usageAnnotation.value())
+                                .showAffixes(usageAnnotation.showAffixes());
+                    } else {
+                        String typeValue = parameter.getType().getSimpleName();
 
-                if (parameter.isAnnotationPresent(Usage.class)) {
-                    Usage usageAnnotation = parameter.getAnnotation(Usage.class);
-                    usageDescriptorBuilder
-                            .value(usageAnnotation.value())
-                            .showAffixes(usageAnnotation.showAffixes());
-                } else {
-                    String typeValue = parameter.getType().getSimpleName();
+                        if (isOptional) {
+                            Optional optionalAnnotation = parameter.getAnnotation(Optional.class);
 
-                    if (isOptional) {
-                        Optional optionalAnnotation = parameter.getAnnotation(Optional.class);
+                            if (optionalAnnotation.showDefault()) {
+                                ParsableString<?> parsable = Arguments.getRegisteredParsable(parameter.getType());
 
-                        if (optionalAnnotation.showDefault()) {
-                            ParsableString<?> parsable = Arguments.getRegisteredParsable(parameter.getType());
+                                if (parsable != null) {
+                                    Object optionalDefault = parsable.getOptionalDefault();
 
-                            if (parsable != null) {
-                                Object optionalDefault = parsable.getOptionalDefault();
-
-                                if (optionalDefault != null) {
-                                    typeValue += " (" + optionalDefault + ")";
+                                    if (optionalDefault != null) {
+                                        typeValue += " (" + optionalDefault + ")";
+                                    }
                                 }
                             }
                         }
+
+                        if (parameter.getType() == List.class || parameter.getType() == Set.class) {
+                            Class<?> typeArgumentClass = (Class<?>) ((ParameterizedType) parameter.getParameterizedType()).getActualTypeArguments()[0];
+
+                            typeValue += "<" + typeArgumentClass.getSimpleName() + ">";
+                        }
+
+                        usageDescriptorBuilder.value(new String[]{typeValue});
                     }
 
-                    if (parameter.getType() == List.class || parameter.getType() == Set.class) {
-                        Class<?> typeArgumentClass = (Class<?>) ((ParameterizedType) parameter.getParameterizedType()).getActualTypeArguments()[0];
-
-                        typeValue += "<" + typeArgumentClass.getSimpleName() + ">";
-                    }
-
-                    usageDescriptorBuilder.value(new String[]{typeValue});
+                    usageProfileBuilder.usageDescriptor(
+                            usageDescriptorBuilder.build()
+                    );
                 }
-
-                usageProfileBuilder.usageDescriptor(
-                        usageDescriptorBuilder.build()
-                );
 
                 methodProfileBuilder.parameterProfile(parameterProfileBuilder.build());
                 methodProfileBuilder.parameterType(parameter.getType());

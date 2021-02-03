@@ -35,7 +35,7 @@ public class BasicCommands implements CommandExecutor {
     }
 
     @Command("toggleTimeLog")
-    public void toggleTimeLog(BasicCommandHandler basicCommandHandler) {
+    public void toggleTimeLog(BasicCommandHandler basicCommandHandler, String test) {
         basicCommandHandler.setLogExecutionTime(!basicCommandHandler.isLogExecutionTime());
 
         System.out.println("Toggled time logging: " + basicCommandHandler.isLogExecutionTime());

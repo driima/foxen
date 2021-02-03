@@ -42,6 +42,8 @@ public abstract class CommandHandler<T> {
      * @see Command
      */
     public void registerCommandExecutor(CommandExecutor executor) {
+        SuppliableArguments suppliableArguments = getSuppliableArguments(null);
+
         for (Method method : executor.getClass().getMethods()) {
             Command annotation = method.getAnnotation(Command.class);
 
@@ -79,6 +81,11 @@ public abstract class CommandHandler<T> {
                         .parameter(parameter);
                 parameterProfileBuilder.type(parameter.getType());
                 parameterProfileBuilder.annotations(Arrays.asList(parameter.getAnnotations()));
+
+                // It's supplied by the implementation, so don't show it in the usage profile
+                if (suppliableArguments != null && suppliableArguments.has(parameter.getType())) {
+                    continue;
+                }
 
                 boolean isOptional = parameter.isAnnotationPresent(Optional.class);
 

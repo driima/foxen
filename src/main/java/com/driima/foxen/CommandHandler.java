@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class CommandHandler<T> {
+public class CommandHandler<T> {
 
     static final Supplier<?> defaultOptionalSupplier = () -> null;
 

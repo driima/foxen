@@ -16,7 +16,6 @@ public class FoxenTest {
     private List<User> users;
 
     private FoxenTest() {
-
         users = Lists.newArrayList();
         users.add(new User("A"));
         users.add(new User("time"));

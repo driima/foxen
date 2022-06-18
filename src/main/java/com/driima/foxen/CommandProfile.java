@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-final class CommandProfile {
+public final class CommandProfile {
     private final Command annotation;
     private final MethodProfile methodProfile;
     private final UsageProfile usageProfile;

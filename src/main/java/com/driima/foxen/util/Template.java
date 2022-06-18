@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Template {
 
+    private static final Template standardTemplate = new Template();
+
     private String prefix;
     private String suffix;
 
@@ -73,7 +75,7 @@ public final class Template {
     }
 
     public static Template get() {
-        return new Template();
+        return standardTemplate;
     }
 
     public static Template get(String prefix, String suffix) {

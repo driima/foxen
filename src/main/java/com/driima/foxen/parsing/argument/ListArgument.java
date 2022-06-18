@@ -13,6 +13,11 @@ public class ListArgument implements ParsableString<List> {
     }
 
     @Override
+    public String getExample() {
+        return "One,2,Three";
+    }
+
+    @Override
     public String getFailure(String input) {
         return "Argument failure.";
     }

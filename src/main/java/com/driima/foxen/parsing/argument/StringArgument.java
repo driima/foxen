@@ -10,6 +10,11 @@ public class StringArgument implements ParsableString<String> {
     }
 
     @Override
+    public String getExample() {
+        return "Hello!";
+    }
+
+    @Override
     public String getFailure(String input) {
         return "Could not parse string.";
     }

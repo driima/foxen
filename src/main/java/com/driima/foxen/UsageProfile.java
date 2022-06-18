@@ -8,7 +8,7 @@ import java.util.Random;
 import java.util.StringJoiner;
 
 @Builder
-class UsageProfile {
+public class UsageProfile {
 
     private static final Random USAGE_RANDOM = new Random();
 
@@ -60,6 +60,7 @@ class UsageProfile {
 
     @Builder
     static class UsageDescriptor {
+        private final String example;
         private final String[] value;
         @Builder.Default
         private final boolean showAffixes = true;

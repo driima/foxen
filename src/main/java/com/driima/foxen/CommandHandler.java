@@ -77,6 +77,7 @@ public class CommandHandler<T> {
             usageProfileBuilder.commandAliases(aliases);
 
             for (Parameter parameter : method.getParameters()) {
+                ParsableString<?> parsable = Arguments.getRegisteredParsable(parameter.getType());
                 ParameterProfile.ParameterProfileBuilder parameterProfileBuilder = ParameterProfile.builder()
                         .parameter(parameter);
                 parameterProfileBuilder.type(parameter.getType());
@@ -103,8 +104,6 @@ public class CommandHandler<T> {
                             Optional optionalAnnotation = parameter.getAnnotation(Optional.class);
 
                             if (optionalAnnotation.showDefault()) {
-                                ParsableString<?> parsable = Arguments.getRegisteredParsable(parameter.getType());
-
                                 if (parsable != null) {
                                     Object optionalDefault = parsable.getOptionalDefault();
 
@@ -124,6 +123,10 @@ public class CommandHandler<T> {
                         usageDescriptorBuilder.value(new String[]{typeValue});
                     }
 
+                    if (parsable != null) {
+                        usageDescriptorBuilder.example(parsable.getExample());
+                    }
+
                     usageProfileBuilder.usageDescriptor(
                             usageDescriptorBuilder.build()
                     );
@@ -138,6 +141,8 @@ public class CommandHandler<T> {
             CommandProfile commandProfile = commandProfileBuilder.build();
 
             aliases.forEach(alias -> commandProfiles.put(usageFormat.getCommandPrefix() + alias, commandProfile));
+
+            System.out.println(commandProfile.getUsageProfile().getUsage());
 
             commandProfileList.add(commandProfile);
         }

@@ -6,17 +6,18 @@ import java.util.*;
 
 public class BooleanArgument implements ParsableString<Boolean> {
 
-    private static final Map<Boolean, Set<String>> booleanConversions;
-    private static final Set<String> predictions = new HashSet<>(Arrays.asList("true", "false"));
+    private static final Random random = new Random();
+
+    private static final Map<Boolean, List<String>> booleanConversions;
 
     static {
         booleanConversions = new HashMap<>(2);
 
-        booleanConversions.put(true, new HashSet<>(Arrays.asList(
+        booleanConversions.put(true, new ArrayList<>(Arrays.asList(
                 "true", "yes", "on", "1"
         )));
 
-        booleanConversions.put(false, new HashSet<>(Arrays.asList(
+        booleanConversions.put(false, new ArrayList<>(Arrays.asList(
                 "false", "no", "off", "0"
         )));
     }
@@ -25,7 +26,7 @@ public class BooleanArgument implements ParsableString<Boolean> {
     public Boolean parse(String input) {
         Boolean result = null;
 
-        for (Map.Entry<Boolean, Set<String>> entry : booleanConversions.entrySet()) {
+        for (Map.Entry<Boolean, List<String>> entry : booleanConversions.entrySet()) {
             if (entry.getValue().contains(input.toLowerCase())) {
                 result = entry.getKey();
                 break;
@@ -36,6 +37,12 @@ public class BooleanArgument implements ParsableString<Boolean> {
     }
 
     @Override
+    public String getExample() {
+        List<String> strings = booleanConversions.get(random.nextBoolean());
+        return strings.get(random.nextInt(strings.size()));
+    }
+
+    @Override
     public Boolean getOptionalDefault() {
         return false;
     }
@@ -43,10 +50,5 @@ public class BooleanArgument implements ParsableString<Boolean> {
     @Override
     public String getFailure(String input) {
         return "Argument not a valid boolean.";
-    }
-
-    @Override
-    public Set<String> getPredictions() {
-        return predictions;
     }
 }

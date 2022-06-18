@@ -1,6 +1,7 @@
 package com.driima.foxen;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Singular;
 
 import java.util.List;
@@ -14,6 +15,8 @@ public class UsageProfile {
 
     @Singular
     private final List<String> commandAliases;
+
+    @Getter
     @Singular
     private final List<UsageDescriptor> usageDescriptors;
 

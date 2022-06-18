@@ -61,8 +61,9 @@ public class UsageProfile {
         return stringJoiner.toString();
     }
 
+    @Getter
     @Builder
-    static class UsageDescriptor {
+    public static class UsageDescriptor {
         private final String example;
         private final String[] value;
         @Builder.Default
